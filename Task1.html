@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Info App</title>
+<style>
+   body {
+  font-family: sans-serif;
+  background: linear-gradient(to right, #c8d7d8, #e0faff);
+  color: #333;
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+}
+
+#output {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  font-size: 1.2em;
+  white-space: pre-line;
+  max-width: 400px;
+}
+  </style>
+</head>
+<body>
+
+  <h2 id="output"></h2>
+
+  <script>
+    var name = prompt("What is your name?");
+    var birthYear = prompt("What is your birth year?");
+    var isStudent = confirm("Are you a student?");
+
+    birthYear = Number(birthYear);
+
+    const currentYear = new Date().getFullYear();
+    const age = currentYear - birthYear;
+
+    if (age > 59) {
+      category = "Senior";
+    } else if (age > 18 ) {
+      category = "Adult";
+    } else if (age > 13) {
+      category = "Teen";
+    } else {
+      category = "Kid";
+    }
+
+    let message = `Hello ${name}, you are ${age} years old.\nCategory: ${category}.`;
+
+    if (isStudent) {
+      message += `\nDon't forget to study hard!`;
+    }
+
+    console.log(message);
+    alert(message);
+    document.getElementById("output").innerText = message;
+  </script>
+</body>
+</html>
