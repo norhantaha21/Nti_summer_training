@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Task Manager Application</title>
+        <style>
+            body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            }
+
+            h1 {
+            text-align: center;
+            color: #333;
+            }
+
+            .task-form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            }
+
+            input[type="text"], select {
+            padding: 10px;
+            font-size: 16px;
+            }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            }
+
+            .task-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            }
+
+            .task-card {
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            min-width: 200px;
+            position: relative;
+            cursor: pointer;
+            }
+        .task-card.task {
+            background-color: #e74c3c;
+            }
+
+            .task-card.in-progress {
+            background-color: #e67e22;
+            }
+
+            .task-card.done {
+            background-color: #2ecc71;
+            }
+
+            .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background-color: black;
+            border: none;
+            color: white;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            border-radius: 3px;
+            }
+        </style>
+
+    </head>
+    <body>
+
+              <h1> Task Manager App</h1>
+
+            <div class="task-form">
+                <input type="text" id="taskName" placeholder="Enter task name" />
+                <select id="taskType">
+                <option value="Task">Task</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
+                </select>
+                <button onclick="addTask()">Add Task</button>
+            </div>
+
+            <div id="taskList" class="task-list"></div>
+
+
+
+        <script>
+           const tasks = [];
+
+            function addTask() {
+            const nameInput = document.getElementById('taskName');
+            const typeInput = document.getElementById('taskType');
+
+            const taskName = nameInput.value.trim();
+            const taskType = typeInput.value;
+
+            if (!taskName) {
+                alert("Please enter a task name!");
+                return;
+            }
+             const task = {
+                taskName,
+                taskType,
+                dateAdded: new Date().toLocaleString()
+            };
+
+            tasks.push(task);
+            console.log("Tasks:", tasks);
+            nameInput.value = '';
+            displayTasks();
+            }
+
+            function displayTasks() {
+            const taskList = document.getElementById('taskList');
+            taskList.innerHTML = '';
+
+            tasks.forEach((task, index) => {
+                const taskDiv = document.createElement('div');
+                taskDiv.classList.add('task-card');
+                switch (task.taskType) {
+                 case 'In Progress':
+                    taskDiv.classList.add('in-progress');
+                    break;
+                 case 'Done':
+                    taskDiv.classList.add('done');
+                    break;
+                default:
+                    taskDiv.classList.add('task');
+                }
+
+                taskDiv.innerHTML = `
+                <strong>${task.taskName}</strong><br/>
+                <small>${task.taskType}</small><br/>
+                <small>${task.dateAdded}</small>
+                <button class="delete-btn" onclick="deleteTask(${index})">Delete</button>
+                `;
+
+                taskDiv.addEventListener('click', function (e) {
+                if (e.target.classList.contains('delete-btn')) return;
+                editTask(index);
+                });
+
+                taskList.appendChild(taskDiv);
+            });
+            }
+
+            function editTask(index) {
+            const newName = prompt("Edit task name:", tasks[index].taskName);
+            const newType = prompt("Edit task type (Task, In Progress, Done):", tasks[index].taskType);
+
+            if (newName && newType) {
+                tasks[index].taskName = newName.trim();
+                tasks[index].taskType = newType.trim();
+                displayTasks();
+            } else {
+                alert("Edit cancelled or invalid input.");
+            }
+            }
+
+            function deleteTask(index) {
+            if (confirm("Are you sure you want to delete this task?")) {
+                tasks.splice(index, 1);
+                displayTasks();
+            }
+            }
+
+
+
+
+
+        </script>
+    </body>
+</html>
