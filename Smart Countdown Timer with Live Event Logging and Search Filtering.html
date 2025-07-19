@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Countdown Timer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #ede7f6);
+      padding: 40px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #512da8;
+    }
+
+    form, .event-log {
+      margin-top: 20px;
+    }
+
+    input[type="text"], input[type="number"], .search-input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 12px;
+      background-color: #512da8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #311b92;
+    }
+
+    .countdown-display {
+      font-size: 18px;
+      margin-top: 15px;
+      color: #333;
+    }
+
+    .event-message {
+      font-weight: bold;
+      color: green;
+      margin-top: 10px;
+    }
+
+    .event-item {
+      background-color: #f3e5f5;
+      border-left: 5px solid #7b1fa2;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>📅 Countdown Timer</h2>
+
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search Events by Name">
+
+    <form id="eventForm">
+      <input type="text" id="eventName" placeholder="Event Name" required>
+      <input type="number" id="timeRemaining" placeholder="Time in Seconds" required min="1">
+      <button type="submit">Start Countdown</button>
+    </form>
+
+    <div id="countdownContainer" class="countdown-display"></div>
+    <div id="eventMessage" class="event-message"></div>
+
+    <div id="eventLog" class="event-log"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('eventForm');
+    const nameInput = document.getElementById('eventName');
+    const timeInput = document.getElementById('timeRemaining');
+    const countdownContainer = document.getElementById('countdownContainer');
+    const eventMessage = document.getElementById('eventMessage');
+    const eventLog = document.getElementById('eventLog');
+    const searchInput = document.getElementById('searchInput');
+
+    let events = [];
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = nameInput.value.trim();
+      const time = parseInt(timeInput.value.trim());
+
+      if (!name || isNaN(time) || time <= 0) {
+        alert("Please enter valid event name and time.");
+        return;
+      }
+
+      const eventObj = {
+        name,
+        timeRemaining: time,
+        originalTime: time,
+        id: Date.now()
+      };
+
+      events.push(eventObj);
+      renderEvents();
+      startCountdown(eventObj);
+      form.reset();
+    });
+
+    function showMessage(text) {
+      eventMessage.textContent = text;
+    }
+
+    function updateCountdownDisplay({ name, timeRemaining }, element) {
+      if (timeRemaining > 0) {
+        element.textContent = `⏳ "${name}" - Time Remaining: ${timeRemaining} second(s)`;
+      } else {
+        element.textContent = `✅ "${name}" has started!`;
+        element.style.color = 'green';
+      }
+    }
+
+    function startCountdown(eventObj) {
+      const el = document.createElement('div');
+      el.id = `countdown-${eventObj.id}`;
+      countdownContainer.appendChild(el);
+
+      const interval = setInterval(() => {
+        eventObj.timeRemaining--;
+        updateCountdownDisplay(eventObj, el);
+
+        if (eventObj.timeRemaining <= 0) {
+          clearInterval(interval);
+          showMessage(`🎉 Event "${eventObj.name}" has started!`);
+        }
+      }, 1000);
+    }
+
+    function renderEvents(filteredList = events) {
+      const searchTerm = searchInput.value.toLowerCase();
+      eventLog.innerHTML = '';
+
+      filteredList
+        .filter(ev => ev.name.toLowerCase().includes(searchTerm))
+        .forEach(ev => {
+          const div = document.createElement('div');
+          div.className = 'event-item';
+          div.textContent =` 📌 ${ev.name} - ${ev.originalTime} second(s)`;
+          eventLog.appendChild(div);
+        });
+    }
+
+    searchInput.addEventListener('input', () => renderEvents());
+  </script>
+</body>
+</html>
