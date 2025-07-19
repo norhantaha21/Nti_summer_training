@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Registration</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #e1bee7);
+      padding: 20px;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #7b1fa2;
+      margin-bottom: 10px;
+    }
+
+    .welcome {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    form, .search-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    input, select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      flex: 1 1 45%;
+      transition: 0.3s;
+    }
+
+    input:focus, select:focus {
+      border-color: #7b1fa2;
+      box-shadow: 0 0 6px rgba(123, 31, 162, 0.2);
+      outline: none;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+      flex: none;
+      margin-top: 10px;
+    }
+
+    button {
+      background: #7b1fa2;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #6a1b9a;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #ede7f6;
+      color: #512da8;
+    }
+
+    tr:hover {
+      background-color: #f3e5f5;
+    }
+
+    .btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .edit-btn { background: #f0ad4e; }
+    .delete-btn { background: #d9534f; }
+
+    #notification {
+      display: none;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .success { background: #c8e6c9; color: #256029; }
+    .error { background: #ffcdd2; color: #b71c1c; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2> Product Registration</h2>
+  <div class="welcome"> Welcome! Fill in your product details below.</div>
+
+  <div id="notification"></div>
+
+  <form id="productForm">
+    <input type="text" id="name" placeholder="Product Name">
+    <input type="text" id="description" placeholder="Description">
+    <input type="number" id="price" placeholder="Price">
+    <select id="category">
+      <option value="">-- Select Category --</option>
+      <option value="Electronics">Electronics</option>
+      <option value="Books">Books</option>
+      <option value="Clothing">Clothing</option>
+      <option value="Home">Home</option>
+    </select>
+    <label><input type="checkbox" id="availability"> Available</label>
+    <button type="submit" id="submitBtn">Add Product</button>
+  </form>
+
+  <div class="search-filter">
+    <input type="text" id="search" placeholder="Search by name or category">
+    <select id="filterCategory">
+      <option value="">All Categories</option>
+      <option value="Electronics">Electronics</option>
+      <option value="Books">Books</option>
+      <option value="Clothing">Clothing</option>
+      <option value="Home">Home</option>
+    </select>
+  </div>
+
+  <table id="productTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Category</th>
+        <th>Available</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+  const form = document.getElementById('productForm');
+  const nameInput = document.getElementById('name');
+  const descInput = document.getElementById('description');
+  const priceInput = document.getElementById('price');
+  const categorySelect = document.getElementById('category');
+  const availabilityCheckbox = document.getElementById('availability');
+  const submitBtn = document.getElementById('submitBtn');
+  const tableBody = document.querySelector('#productTable tbody');
+  const searchInput = document.getElementById('search');
+  const filterSelect = document.getElementById('filterCategory');
+  const notification = document.getElementById('notification');
+
+  let products = [];
+  let editIndex = null;
+
+  function showNotification(message, type) {
+    notification.textContent = message;
+    notification.className = type;
+    notification.style.display = 'block';
+    setTimeout(() => notification.style.display = 'none', 3000);
+  }
+
+  function validateForm() {
+    if (!nameInput.value.trim() || !descInput.value.trim() || !priceInput.value || !categorySelect.value) {
+      showNotification("❌ Please fill in all required fields correctly.", "error");
+      return false;
+    }
+    if (parseFloat(priceInput.value) <= 0) {
+      showNotification("❌ Price must be positive.", "error");
+      return false;
+    }
+    return true;
+  }
+
+  function renderTable(data) {
+    tableBody.innerHTML = data.map((p, i) => `
+      <tr>
+        <td>${p.name}</td>
+        <td>${p.description}</td>
+        <td>${p.price}</td>
+        <td>${p.category}</td>
+        <td>${p.availability ? 'Yes' : 'No'}</td>
+        <td>
+          <button class="btn edit-btn" onclick="editProduct(${i})">Edit</button>
+          <button class="btn delete-btn" onclick="deleteProduct(${i})">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    const product = {
+      name: nameInput.value.trim(),
+      description: descInput.value.trim(),
+      price: parseFloat(priceInput.value),
+      category: categorySelect.value,
+      availability: availabilityCheckbox.checked
+    };
+
+    if (editIndex !== null) {
+      products[editIndex] = product;
+      showNotification("🔄 Product updated.", "success");
+      submitBtn.textContent = "Add Product";
+      editIndex = null;
+    } else {
+      products.push(product);
+      showNotification("✅ Product added.", "success");
+    }
+
+    renderTable(products);
+    form.reset();
+  });
+
+  window.editProduct = function(index) {
+    const p = products[index];
+    nameInput.value = p.name;
+    descInput.value = p.description;
+    priceInput.value = p.price;
+    categorySelect.value = p.category;
+    availabilityCheckbox.checked = p.availability;
+    submitBtn.textContent = "Update Product";
+    editIndex = index;
+  }
+
+  window.deleteProduct = function(index) {
+    if (confirm("Are you sure you want to delete this product?")) {
+      products.splice(index, 1);
+      renderTable(products);
+      showNotification("🗑 Product deleted.", "success");
+    }
+  }
+
+  searchInput.addEventListener('input', function() {
+    const query = this.value.toLowerCase();
+    const filtered = products.filter(p => 
+      p.name.toLowerCase().includes(query) || 
+      p.category.toLowerCase().includes(query)
+    );
+    renderTable(filtered);
+  });
+
+  filterSelect.addEventListener('change', function() {
+    const selected = this.value;
+    const filtered = selected ? products.filter(p => p.category === selected) : products;
+    renderTable(filtered);
+  });
+</script>
+
+</body>
+</html>
